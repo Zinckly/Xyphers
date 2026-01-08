@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xyphers</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>XYPHERS</h1>
+            <div id="timer" class="timer">00:00</div>
+            <div class="controls">
+                <button id="new-game-btn" class="btn primary">New Game</button>
+                <button id="clear-btn" class="btn secondary">Clear</button>
+                <button id="check-btn" class="btn secondary">Check</button>
+            </div>
+        </header>
+
+        <div class="game-content">
+            <main id="game-board" class="game-board">
+                <!-- Cipher letters and inputs will be injected here -->
+                <div class="loading-state">Initializing Neural Link...</div>
+            </main>
+
+            <aside class="sidebar">
+                <div class="panel options-panel">
+                    <h3>SETTINGS</h3>
+                    <div class="control-group">
+                        <label for="cipher-type">Cipher Type</label>
+                        <select id="cipher-type" class="full-width-select">
+                            <option value="aristocrat">Aristocrat</option>
+                            <option value="patristocrat">Patristocrat</option>
+                            <option value="atbash">Atbash</option>
+                        </select>
+                    </div>
+                    <div class="toggle-control">
+                        <label for="toggle-highlight">Highlight Matches</label>
+                        <input type="checkbox" id="toggle-highlight" checked>
+                    </div>
+                    <div class="toggle-control">
+                        <label for="toggle-autofill">Autofill Letters</label>
+                        <input type="checkbox" id="toggle-autofill" checked>
+                    </div>
+                </div>
+
+                <div class="panel freq-panel">
+                    <h3>FREQUENCY</h3>
+                    <div id="freq-chart" class="freq-chart">
+                        <!-- Bars injected via JS -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <div id="status-message" class="status-message hidden">
+            <!-- Win/Loss messages -->
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="close-modal-btn" class="close-btn">&times;</button>
+            <h2>SYSTEM BREACHED</h2>
+            <p>ENCRYPTION DECODED SUCCESSFULLY</p>
+            <div class="stat-box">
+                <span class="stat-label">TIME</span>
+                <span id="final-time" class="stat-value">01:24</span>
+            </div>
+            <button id="modal-next-btn" class="btn primary full-width">Next Cipher</button>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>Quotes provided by <a href="https://dummyjson.com/" target="_blank">DummyJSON API</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
