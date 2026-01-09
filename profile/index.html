@@ -97,7 +97,7 @@
 <body>
 
     <div class="profile-container">
-        <h1><a href="../index.html" class="home-link">
+        <h1><a href="../" class="home-link">
                 <svg class="logo-x" viewBox="0 0 100 100">
                     <circle cx="30" cy="30" r="21" />
                     <line x1="56" y1="56" x2="90" y2="90" />
@@ -142,7 +142,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             if (!UserSession.isLoggedIn()) {
-                window.location.href = '../login/index.html';
+                window.location.href = '../login/';
                 return;
             }
 
@@ -157,8 +157,8 @@
                         <button class="dropdown-btn">${username} &#9662;</button>
                         <div class="dropdown-content">
                             <a href="#">Statistics</a>
-                            <a href="../leaderboard/index.html">Leaderboard</a>
-                            <a href="#" onclick="UserSession.logout(); window.location.href='../index.html'; return false;">Logout</a>
+                            <a href="../leaderboard/">Leaderboard</a>
+                            <a href="#" onclick="UserSession.logout(); window.location.href='../'; return false;">Logout</a>
                         </div>
                     </div>
                 `;
