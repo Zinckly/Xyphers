@@ -45,8 +45,45 @@ class UserSession {
     }
 
     static isLoggedIn() {
-        user.stats.totalSolved += 1;
+        return !!localStorage.getItem('xyphers_token');
+    }
 
-        this.saveUsers(users);
+    static getCurrentUser() {
+        return localStorage.getItem('xyphers_current_user');
+    }
+
+    static async getStats() {
+        const token = localStorage.getItem('xyphers_token');
+        if (!token) return null;
+        try {
+            const response = await fetch(`${API_URL}/user/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        }
+        return null;
+    }
+
+    static async updateStats(cipherType, time) {
+        const token = localStorage.getItem('xyphers_token');
+        if (!token) return false;
+        try {
+            const response = await fetch(`${API_URL}/user/stats`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ cipherType, time })
+            });
+            return response.ok;
+        } catch (error) {
+            console.error("Error updating stats:", error);
+        }
+        return false;
     }
 }
