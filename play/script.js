@@ -105,14 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="dropdown">
                     <button class="dropdown-btn">${username} &#9662;</button>
                     <div class="dropdown-content">
-                        <a href="../profile/index.html">Statistics</a>
-                        <a href="../leaderboard/index.html">Leaderboard</a>
+                        <a href="../profile/">Statistics</a>
+                        <a href="../leaderboard/">Leaderboard</a>
                         <a href="#" onclick="UserSession.logout(); window.location.reload(); return false;">Logout</a>
                     </div>
                 </div>
             `;
         } else {
-            authContainer.innerHTML = `<a href="../login/index.html" class="btn secondary" style="text-decoration:none;">LOGIN</a>`;
+            authContainer.innerHTML = `<a href="../login/" class="btn secondary" style="text-decoration:none;">LOGIN</a>`;
         }
     }
 
@@ -532,11 +532,13 @@ function checkSolution() {
         });
 
         stopTimer();
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const solveTime = Math.floor((Date.now() - startTime) / 1000);
 
         // Track Stats
-        if (typeof UserSession !== 'undefined' && UserSession.isLoggedIn()) {
-            UserSession.updateStats(gameState.settings.cipherType, elapsed);
+        if (typeof UserSession !== 'undefined') {
+            if (UserSession.isLoggedIn()) {
+                UserSession.updateStats(gameState.cipherType, solveTime);
+            }
         }
 
         const timerText = document.getElementById('timer').textContent;

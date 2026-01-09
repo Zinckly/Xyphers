@@ -130,8 +130,8 @@
         </div>
 
         <div class="nav-buttons" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-            <a href="../index.html" class="btn secondary full-width" style="text-decoration: none;">HOME</a>
-            <a href="../play/index.html" class="btn primary full-width" style="text-decoration: none;">PLAY</a>
+            <a href="../" class="btn secondary full-width" style="text-decoration: none;">HOME</a>
+            <a href="../play/" class="btn primary full-width" style="text-decoration: none;">PLAY</a>
         </div>
 
         <button id="logout-btn" class="btn logout-btn full-width">LOG OUT</button>
@@ -140,7 +140,7 @@
     <div id="auth-link-container" style="position: absolute; top: 1rem; right: 2rem; z-index: 100;"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             if (!UserSession.isLoggedIn()) {
                 window.location.href = '../login/index.html';
                 return;
@@ -164,7 +164,7 @@
                 `;
             }
 
-            const stats = UserSession.getStats();
+            const stats = await UserSession.getStats();
             if (stats) {
                 document.getElementById('total-solved').textContent = stats.totalSolved;
                 document.getElementById('aristocrat-avg').textContent = Math.round(stats.aristocrat.time) + 's';
@@ -175,7 +175,7 @@
 
             document.getElementById('logout-btn').addEventListener('click', () => {
                 UserSession.logout();
-                window.location.href = '../index.html';
+                window.location.href = '../';
             });
         });
     </script>
