@@ -57,17 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame();
     });
 
-    // Settings Listeners
-    document.getElementById('toggle-highlight').addEventListener('change', (e) => {
-        gameState.settings.highlightSame = e.target.checked;
-        saveSettings();
-
-        if (!gameState.settings.highlightSame) {
-            // Clear existing highlights
-            document.querySelectorAll('.input-letter').forEach(el => el.classList.remove('active-same-letter'));
-        }
-    });
-
     document.getElementById('toggle-autofill').addEventListener('change', (e) => {
         gameState.settings.autofill = e.target.checked;
         saveSettings();
@@ -83,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cipherSelect.addEventListener('change', (e) => {
             gameState.settings.cipherType = e.target.value;
             saveSettings();
+            updateControls();
             initGame();
         });
     }
@@ -106,6 +96,43 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    // Auth Link Logic
+    const authContainer = document.getElementById('auth-link-container');
+    if (authContainer) {
+        if (UserSession.isLoggedIn()) {
+            const username = UserSession.getCurrentUser();
+            authContainer.innerHTML = `
+                <div class="dropdown">
+                    <button class="dropdown-btn">${username} &#9662;</button>
+                    <div class="dropdown-content">
+                        <a href="../profile/index.html">Statistics</a>
+                        <a href="../leaderboard/index.html">Leaderboard</a>
+                        <a href="#" onclick="UserSession.logout(); window.location.reload(); return false;">Logout</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            authContainer.innerHTML = `<a href="../login/index.html" class="btn secondary" style="text-decoration:none;">LOGIN</a>`;
+        }
+    }
+
+    // Re-add Highlight Listener
+    if (highlightToggle) {
+        // Init state from settings
+        highlightToggle.checked = gameState.settings.highlightSame;
+
+        highlightToggle.addEventListener('change', (e) => {
+            gameState.settings.highlightSame = e.target.checked;
+            saveSettings();
+
+            if (!gameState.settings.highlightSame) {
+                // Clear existing highlights
+                document.querySelectorAll('.input-letter').forEach(el => el.classList.remove('active-same-letter'));
+            }
+        });
+    }
+
+    updateControls(); // Check disable state on load
 });
 
 function saveSettings() {
@@ -123,29 +150,38 @@ function clearBoard() {
     hideStatus();
 }
 
-async function fetchQuote() {
+async function fetchQuote(limit = 30) {
     try {
-        let attempts = 0;
-        while (attempts < 5) {
-            const response = await fetch('https://dummyjson.com/quotes/random');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
+        // Use global variable from quotes.js
+        if (typeof LOCAL_QUOTES !== 'undefined' && Array.isArray(LOCAL_QUOTES)) {
+            // Filter for quotes provided limit
+            const shortQuotes = LOCAL_QUOTES.filter(q => q.quote.split(' ').length <= limit);
 
-            // Check word count limit
-            if (data.quote.split(' ').length <= 30) {
-                return data.quote.toUpperCase();
+            if (shortQuotes.length > 0) {
+                const randomQuote = shortQuotes[Math.floor(Math.random() * shortQuotes.length)];
+                return {
+                    quote: randomQuote.quote.toUpperCase(),
+                    author: randomQuote.author
+                };
+            } else {
+                console.warn(`No quotes <= ${limit} words found in local, trying generally short ones.`);
+                // Fallback to slightly longer if very strict limit fails
+                const retryLimit = limit + 5;
+                const mediumQuotes = LOCAL_QUOTES.filter(q => q.quote.split(' ').length <= retryLimit);
+                if (mediumQuotes.length > 0) {
+                    const randomQuote = mediumQuotes[Math.floor(Math.random() * mediumQuotes.length)];
+                    return { quote: randomQuote.quote.toUpperCase(), author: randomQuote.author };
+                }
             }
-            console.log(`Quote too long (${data.quote.split(' ').length} words), retrying...`);
-            attempts++;
         }
-        // If we fail to find a short one after 5 retries, fallback or just take the last one.
-        // Let's fallback to local to be safe/fast.
-        console.warn('Could not find short quote from API, using local fallback.');
-        return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        // Last resort Fallback
+        const fallbackQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        return { quote: fallbackQuote, author: 'UNKNOWN SIGNAL' };
 
     } catch (error) {
-        console.warn('API Fetch failed, using local fallback:', error);
-        return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        console.warn('Error processing quotes, using local fallback:', error);
+        const fallbackQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        return { quote: fallbackQuote, author: 'UNKNOWN SIGNAL' };
     }
 }
 
@@ -158,15 +194,25 @@ async function initGame() {
     board.innerHTML = '<div class="loading-state">ENCRYPTING TRANSMISSION...</div>';
     document.getElementById('freq-chart').innerHTML = ''; // Clear chart during load
 
-    // Fetch Quote
-    const quote = await fetchQuote();
+    // Determine limit
+    const limit = gameState.settings.cipherType === 'baconian' ? 10 : 30;
 
-    gameState.originalQuote = quote;
+    // Fetch Quote
+    const data = await fetchQuote(limit);
+
+    gameState.originalQuote = data.quote;
+
+    // Normalize Logic for Baconian (Classic 24-letter alphabet: I=J, U=V)
+    if (gameState.settings.cipherType === 'baconian') {
+        gameState.originalQuote = gameState.originalQuote.replace(/J/g, 'I').replace(/V/g, 'U');
+    }
+
+    gameState.author = data.author; // Store author
     gameState.cipherMap = generateCipher();
     gameState.userInputs = {};
 
-    renderBoard(quote, gameState.cipherMap);
-    renderFrequencyChart(quote, gameState.cipherMap);
+    renderBoard(gameState.originalQuote, gameState.cipherMap);
+    renderFrequencyChart(gameState.originalQuote, gameState.cipherMap);
 
     gameState.isGameActive = true;
     hideStatus();
@@ -200,7 +246,20 @@ function generateCipher() {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
     let targetAlphabet;
 
-    if (gameState.settings.cipherType === 'atbash') {
+    if (gameState.settings.cipherType === 'baconian') {
+        // Classic Baconian Map (24-letter alphabet, I=J, U=V)
+        // A=0 (AAAAA), B=1 (AAAAB)
+        const classicMap = {
+            'A': 'AAAAA', 'B': 'AAAAB', 'C': 'AAABA', 'D': 'AAABB', 'E': 'AABAA',
+            'F': 'AABAB', 'G': 'AABBA', 'H': 'AABBB',
+            'I': 'ABAAA', 'J': 'ABAAA', // I/J
+            'K': 'ABAAB', 'L': 'ABABA', 'M': 'ABABB', 'N': 'ABBAA', 'O': 'ABBAB',
+            'P': 'ABBBA', 'Q': 'ABBBB', 'R': 'BAAAA', 'S': 'BAAAB', 'T': 'BAABA',
+            'U': 'BAABB', 'V': 'BAABB', // U/V
+            'W': 'BABAA', 'X': 'BABAB', 'Y': 'BABBA', 'Z': 'BABBB'
+        };
+        return classicMap;
+    } else if (gameState.settings.cipherType === 'atbash') {
         // Atbash: Reverse alphabet
         targetAlphabet = [...alphabet].reverse();
     } else {
@@ -208,11 +267,14 @@ function generateCipher() {
         targetAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
     }
 
-    const map = {};
-    for (let i = 0; i < alphabet.length; i++) {
-        map[alphabet[i]] = targetAlphabet[i];
+    if (gameState.settings.cipherType !== 'baconian') {
+        const map = {};
+        for (let i = 0; i < alphabet.length; i++) {
+            map[alphabet[i]] = targetAlphabet[i];
+        }
+        return map;
     }
-    return map;
+    return {}; // Should not reach here for baconian
 }
 
 function renderBoard(quote, cipherMap) {
@@ -222,14 +284,11 @@ function renderBoard(quote, cipherMap) {
     let words = [];
 
     if (gameState.settings.cipherType === 'patristocrat') {
-        // Remove spaces, keep punctuation/numbers
         const raw = quote.replace(/ /g, '');
-        // Chunk into 5s
         for (let i = 0; i < raw.length; i += 5) {
             words.push(raw.slice(i, i + 5));
         }
     } else {
-        // Aristocrat: Standard split by space
         words = quote.split(' ');
     }
 
@@ -238,25 +297,47 @@ function renderBoard(quote, cipherMap) {
         wordDiv.className = 'word';
         for (let char of word) {
             if (/[A-Z]/.test(char)) {
-                const cipherChar = cipherMap[char];
+
                 const col = document.createElement('div');
                 col.className = 'letter-column';
 
-                const cipherDiv = document.createElement('div');
-                cipherDiv.className = 'cipher-letter';
-                cipherDiv.textContent = cipherChar;
+                let cipherDisplay = "";
+                let inputMaxLength = 1;
+
+                if (gameState.settings.cipherType === 'baconian') {
+                    // Baconian: Cipher is 5 chars long (00000)
+                    cipherDisplay = cipherMap[char];
+
+                    const cipherDiv = document.createElement('div');
+                    cipherDiv.className = 'cipher-letter';
+                    cipherDiv.style.fontSize = '0.8rem'; // Smaller font for 5 chars
+                    cipherDiv.style.letterSpacing = '1px';
+                    cipherDiv.textContent = cipherDisplay;
+                    col.appendChild(cipherDiv);
+                } else {
+                    cipherDisplay = cipherMap[char];
+                    const cipherDiv = document.createElement('div');
+                    cipherDiv.className = 'cipher-letter';
+                    cipherDiv.textContent = cipherDisplay;
+                    col.appendChild(cipherDiv);
+                }
 
                 const input = document.createElement('input');
                 input.className = 'input-letter';
+
+                if (gameState.settings.cipherType === 'baconian') {
+                    input.style.width = '60px'; // Wider input for Baconian alignment
+                    input.style.fontSize = '1.2rem';
+                }
+
                 input.maxLength = 1;
-                input.dataset.cipher = cipherChar;
+                input.dataset.cipher = cipherMap[char]; // For Baconian, this is the binary string
                 input.dataset.original = char;
 
                 input.addEventListener('input', handleInput);
                 input.addEventListener('focus', handleFocus);
                 input.addEventListener('keydown', handleKeydown);
 
-                col.appendChild(cipherDiv);
                 col.appendChild(input);
                 wordDiv.appendChild(col);
             } else {
@@ -277,9 +358,10 @@ function renderFrequencyChart(quote, cipherMap) {
     if (!chart) return;
     chart.innerHTML = '';
 
-    // Hide for Atbash
-    if (gameState.settings.cipherType === 'atbash') {
-        chart.innerHTML = '<div style="padding:1rem; color:var(--text-secondary); text-align:center; font-style:italic; opacity:0.7;">Frequency analysis disabled for Atbash</div>';
+    // Hide for Atbash AND Baconian
+    if (gameState.settings.cipherType === 'atbash' || gameState.settings.cipherType === 'baconian') {
+        const typeName = gameState.settings.cipherType.charAt(0).toUpperCase() + gameState.settings.cipherType.slice(1);
+        chart.innerHTML = `<div style="padding:1rem; color:var(--text-secondary); text-align:center; font-style:italic; opacity:0.7;">Frequency analysis disabled for ${typeName}</div>`;
         return;
     }
 
@@ -318,13 +400,16 @@ function renderFrequencyChart(quote, cipherMap) {
 function handleInput(e) {
     const input = e.target;
     const val = input.value.toUpperCase();
-    const cipherChar = input.dataset.cipher;
+    const cipherChar = input.dataset.cipher; // Unique ID (char or binary string)
 
     input.value = val;
     gameState.userInputs[cipherChar] = val;
 
     // Autofill Logic
     if (gameState.settings.autofill) {
+        // Selector must handle binary strings which might contain special chars? No, 0/1 are fine.
+        // CSS.escape might be needed if using querySelector with raw strings starting with digit?
+        // data-cipher="00000" -> selector [data-cipher="00000"] works fine
         const allInputs = document.querySelectorAll(`.input-letter[data-cipher="${cipherChar}"]`);
         allInputs.forEach(el => {
             el.value = val;
@@ -342,6 +427,27 @@ function handleInput(e) {
         }
     }
     // Note: No checkWinCondition here, per request check is manual or Enter
+}
+
+function updateControls() {
+    const type = gameState.settings.cipherType;
+    const highlightToggle = document.getElementById('toggle-highlight');
+
+    if (highlightToggle) {
+        if (type === 'atbash' || type === 'baconian') {
+            highlightToggle.checked = false;
+            highlightToggle.disabled = true;
+            // Force setting to false so game logic respects it
+            gameState.settings.highlightSame = false;
+
+            // Clean up any existing highlights immediately
+            const inputs = document.querySelectorAll('.input-letter');
+            inputs.forEach(el => el.classList.remove('active-same-letter'));
+
+        } else {
+            highlightToggle.disabled = false;
+        }
+    }
 }
 
 function handleFocus(e) {
@@ -426,11 +532,22 @@ function checkSolution() {
         });
 
         stopTimer();
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+
+        // Track Stats
+        if (typeof UserSession !== 'undefined' && UserSession.isLoggedIn()) {
+            UserSession.updateStats(gameState.settings.cipherType, elapsed);
+        }
+
         const timerText = document.getElementById('timer').textContent;
         const finalTimeEl = document.getElementById('final-time');
         if (finalTimeEl) finalTimeEl.textContent = timerText;
         const modal = document.getElementById('win-modal');
-        if (modal) modal.classList.remove('hidden');
+        if (modal) {
+            const authorEl = document.getElementById('win-author');
+            if (authorEl) authorEl.textContent = "Author: " + gameState.author;
+            modal.classList.remove('hidden');
+        }
     } else {
         // Shake all textboxes
         inputs.forEach(input => {

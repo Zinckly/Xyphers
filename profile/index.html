@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-91RR8YFMZ6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-91RR8YFMZ6');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xyphers - Profile</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="../play/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="../auth.js"></script>
+    <style>
+        body {
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid var(--input-border);
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent-primary);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        h2 {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            font-family: var(--font-mono);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .logout-btn {
+            background: rgba(255, 0, 85, 0.1);
+            color: var(--accent-error);
+            border: 1px solid var(--accent-error);
+        }
+
+        .logout-btn:hover {
+            background: var(--accent-error);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="profile-container">
+        <h1><a href="../index.html" class="home-link">
+                <svg class="logo-x" viewBox="0 0 100 100">
+                    <circle cx="30" cy="30" r="21" />
+                    <line x1="56" y1="56" x2="90" y2="90" />
+                    <line x1="90" y1="10" x2="10" y2="90" />
+                </svg>YPHERS
+            </a></h1>
+        <h2 id="user-greeting">Welcome, User</h2>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span id="total-solved" class="stat-value">0</span>
+                <span class="stat-label">Total Solved</span>
+            </div>
+            <div class="stat-card">
+                <span id="aristocrat-avg" class="stat-value">0s</span>
+                <span class="stat-label">Avg Aristocrat Time</span>
+            </div>
+            <div class="stat-card">
+                <span id="patristocrat-avg" class="stat-value">0s</span>
+                <span class="stat-label">Avg Patristocrat Time</span>
+            </div>
+            <div class="stat-card">
+                <span id="atbash-avg" class="stat-value">0s</span>
+                <span class="stat-label">Avg Atbash Time</span>
+            </div>
+            <div class="stat-card">
+                <span id="baconian-avg" class="stat-value">0s</span>
+                <span class="stat-label">Avg Baconian Time</span>
+            </div>
+        </div>
+
+        <div class="nav-buttons" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+            <a href="../index.html" class="btn secondary full-width" style="text-decoration: none;">HOME</a>
+            <a href="../play/index.html" class="btn primary full-width" style="text-decoration: none;">PLAY</a>
+        </div>
+
+        <button id="logout-btn" class="btn logout-btn full-width">LOG OUT</button>
+    </div>
+
+    <div id="auth-link-container" style="position: absolute; top: 1rem; right: 2rem; z-index: 100;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!UserSession.isLoggedIn()) {
+                window.location.href = '../login/index.html';
+                return;
+            }
+
+            const username = UserSession.getCurrentUser();
+            document.getElementById('user-greeting').textContent = `OPERATOR: ${username}`;
+
+            // Dropdown Logic
+            const authContainer = document.getElementById('auth-link-container');
+            if (authContainer) {
+                authContainer.innerHTML = `
+                    <div class="dropdown">
+                        <button class="dropdown-btn">${username} &#9662;</button>
+                        <div class="dropdown-content">
+                            <a href="#">Statistics</a>
+                            <a href="../leaderboard/index.html">Leaderboard</a>
+                            <a href="#" onclick="UserSession.logout(); window.location.href='../index.html'; return false;">Logout</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const stats = UserSession.getStats();
+            if (stats) {
+                document.getElementById('total-solved').textContent = stats.totalSolved;
+                document.getElementById('aristocrat-avg').textContent = Math.round(stats.aristocrat.time) + 's';
+                document.getElementById('patristocrat-avg').textContent = Math.round(stats.patristocrat.time) + 's';
+                document.getElementById('atbash-avg').textContent = Math.round(stats.atbash.time) + 's';
+                document.getElementById('baconian-avg').textContent = Math.round(stats.baconian ? stats.baconian.time : 0) + 's';
+            }
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                UserSession.logout();
+                window.location.href = '../index.html';
+            });
+        });
+    </script>
+</body>
+
+</html>

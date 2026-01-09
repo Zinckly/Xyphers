@@ -1,18 +1,18 @@
 :root {
-    --bg-color: #0d0d12;
-    --card-bg: #1a1a23;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0b0;
-    --accent-primary: #00f3ff;
-    --accent-secondary: #bc13fe;
-    --accent-success: #00ff9d;
-    --accent-error: #ff0055;
+    --bg-color: #242933;
+    --card-bg: #2E3440;
+    --text-primary: #ECEFF4;
+    --text-secondary: #D8DEE9;
+    --accent-primary: #88C0D0;
+    --accent-secondary: #81A1C1;
+    --accent-success: #A3BE8C;
+    --accent-error: #BF616A;
 
     --font-main: 'Outfit', sans-serif;
     --font-mono: 'Space Mono', monospace;
 
-    --input-bg: #252530;
-    --input-border: #3b3b4f;
+    --input-bg: #3B4252;
+    --input-border: #4C566A;
     --input-focus: var(--accent-primary);
 }
 
@@ -55,17 +55,43 @@ h1 {
     font-weight: 700;
     letter-spacing: -0.05em;
     font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1em;
+}
+
+.logo-x {
+    width: 0.9em;
+    height: 0.9em;
+    stroke: currentColor;
+    stroke-width: 8;
+    stroke-linecap: round;
+    fill: none;
+    margin-right: -0.1em;
+}
+
+.home-link {
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.home-link:hover {
+    opacity: 0.8;
 }
 
 .highlight {
     color: var(--accent-primary);
-    text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+    text-shadow: 0 0 10px rgba(136, 192, 208, 0.2);
 }
 
 .btn {
     padding: 0.8rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     font-family: var(--font-main);
     font-weight: 600;
@@ -76,14 +102,14 @@ h1 {
 
 .btn.primary {
     background-color: var(--accent-primary);
-    color: #000;
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    color: #2E3440;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn.primary:hover {
-    background-color: #4df8ff;
-    box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+    background-color: #81A1C1;
     transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn.secondary {
@@ -146,12 +172,12 @@ h1 {
     background: var(--card-bg);
     padding: 2.5rem;
     border-radius: 12px;
-    border: 1px solid var(--accent-success);
+    border: 1px solid var(--input-border);
     width: 90%;
     max-width: 400px;
     text-align: center;
     position: relative;
-    box-shadow: 0 0 50px rgba(0, 255, 157, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transform: scale(1);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -222,10 +248,10 @@ h1 {
     font-family: var(--font-mono);
     font-size: 1.5rem;
     color: var(--accent-primary);
-    background: rgba(0, 243, 255, 0.1);
+    background: rgba(136, 192, 208, 0.1);
     padding: 0.5rem 1rem;
-    border-radius: 4px;
-    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(136, 192, 208, 0.2);
     margin-right: auto;
     margin-left: 2rem;
 }
@@ -379,7 +405,7 @@ input[type="checkbox"] {
     width: 40px;
     height: 50px;
     background-color: var(--input-bg);
-    border: 2px solid var(--input-border);
+    border: 1px solid var(--input-border);
     border-radius: 6px;
     color: var(--text-primary);
     font-family: var(--font-main);
@@ -396,8 +422,9 @@ input[type="checkbox"] {
 .input-letter:focus {
     border-color: var(--accent-primary);
     border-width: 2px;
-    background-color: rgba(0, 243, 255, 0.15);
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0, 243, 255, 0.1);
+    background-color: #434C5E;
+    box-shadow: 0 0 0 4px rgba(136, 192, 208, 0.1);
+    outline: none;
     transform: scale(1.05);
     z-index: 10;
 }
@@ -420,8 +447,8 @@ input[type="checkbox"] {
 /* Status Message */
 .status-message {
     padding: 1rem 2rem;
-    border-radius: 8px;
-    background: rgba(0, 255, 157, 0.1);
+    border-radius: 6px;
+    background: rgba(163, 190, 140, 0.1);
     border: 1px solid var(--accent-success);
     color: var(--accent-success);
     font-weight: bold;
@@ -537,4 +564,59 @@ input[type="checkbox"] {
 .app-footer a:hover {
     opacity: 0.8;
     text-decoration: underline;
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--card-bg);
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    z-index: 1000;
+}
+
+.dropdown-content a {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-family: var(--font-main);
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--input-bg);
+    color: var(--accent-primary);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-btn {
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--input-border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.dropdown-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
