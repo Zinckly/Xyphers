@@ -3,8 +3,8 @@ class ThemeManager {
     static THEME_KEY = 'xyphers_theme';
 
     static init() {
-        // Load saved theme or default to light
-        const savedTheme = localStorage.getItem(this.THEME_KEY) || 'light';
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem(this.THEME_KEY) || 'dark';
         this.setTheme(savedTheme);
     }
 
@@ -14,14 +14,14 @@ class ThemeManager {
     }
 
     static toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         this.setTheme(newTheme);
         return newTheme;
     }
 
     static getCurrentTheme() {
-        return document.documentElement.getAttribute('data-theme') || 'light';
+        return document.documentElement.getAttribute('data-theme') || 'dark';
     }
 }
 

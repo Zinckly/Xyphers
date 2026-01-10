@@ -95,23 +95,8 @@
                     <h3>Dark Mode</h3>
                     <p>Switch between light and dark themes</p>
                 </div>
+                <!-- Checkbox Checked = Dark Mode -->
                 <input type="checkbox" id="toggle-theme">
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <h3>Highlight Matches</h3>
-                    <p>Highlight matching letters while typing</p>
-                </div>
-                <input type="checkbox" id="toggle-highlight" checked>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-info">
-                    <h3>Autofill Letters</h3>
-                    <p>Automatically fill in matching letters</p>
-                </div>
-                <input type="checkbox" id="toggle-autofill" checked>
             </div>
         </div>
 
@@ -119,30 +104,14 @@
     </div>
 
     <script>
-        // Load settings from localStorage
-        const settings = JSON.parse(localStorage.getItem('xyphers_settings') || '{}');
-
         // Initialize theme toggle
         const themeToggle = document.getElementById('toggle-theme');
+
+        // Initial state: if theme is dark, checkbox should be checked
         themeToggle.checked = ThemeManager.getCurrentTheme() === 'dark';
+
         themeToggle.addEventListener('change', () => {
-            ThemeManager.toggleTheme();
-        });
-
-        // Initialize highlight toggle
-        const highlightToggle = document.getElementById('toggle-highlight');
-        highlightToggle.checked = settings.highlightSame !== false;
-        highlightToggle.addEventListener('change', (e) => {
-            settings.highlightSame = e.target.checked;
-            localStorage.setItem('xyphers_settings', JSON.stringify(settings));
-        });
-
-        // Initialize autofill toggle
-        const autofillToggle = document.getElementById('toggle-autofill');
-        autofillToggle.checked = settings.autofill !== false;
-        autofillToggle.addEventListener('change', (e) => {
-            settings.autofill = e.target.checked;
-            localStorage.setItem('xyphers_settings', JSON.stringify(settings));
+            ThemeManager.setTheme(themeToggle.checked ? 'dark' : 'light');
         });
     </script>
 </body>
