@@ -101,8 +101,8 @@ app.post('/api/auth/signup', async (req, res) => {
         if (err.code === '23505') { // PostgreSQL Unique Violation code
             return res.status(400).json({ message: 'Username already exists' });
         }
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Signup Database Error:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
@@ -122,7 +122,8 @@ app.post('/api/auth/login', async (req, res) => {
         const token = jwt.sign({ username: user.username, id: user.id }, SECRET_KEY, { expiresIn: '7d' });
         res.json({ success: true, token, username: user.username });
     } catch (err) {
-        res.status(500).json({ message: 'Database error' });
+        console.error('Login Database Error:', err);
+        res.status(500).json({ message: 'Database error', error: err.message });
     }
 });
 
