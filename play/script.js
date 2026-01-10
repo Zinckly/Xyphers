@@ -299,7 +299,7 @@ function renderBoard(quote, cipherMap) {
     let words = [];
 
     if (gameState.settings.cipherType === 'patristocrat') {
-        const raw = quote.replace(/ /g, '');
+        const raw = quote.toUpperCase().replace(/[^A-Z]/g, '');
         for (let i = 0; i < raw.length; i += 5) {
             words.push(raw.slice(i, i + 5));
         }
