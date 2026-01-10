@@ -1,4 +1,4 @@
-const API_URL = 'https://xyphers.onrender.com';
+const API_URL = 'https://xyphers.onrender.com/api';
 
 class UserSession {
     static async signup(username, password) {
