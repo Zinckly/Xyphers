@@ -34,21 +34,38 @@
                     </svg>YPHERS
                 </a></h1>
             <div id="timer" class="timer">00:00</div>
-            <div class="controls">
-                <button id="new-game-btn" class="btn primary">New Game</button>
-                <button id="clear-btn" class="btn secondary">Clear</button>
-                <button id="check-btn" class="btn secondary">Check</button>
-                <div id="auth-link-container" style="display:inline-block; margin-left:1rem;"></div>
-            </div>
+            <nav class="main-nav">
+                <a href="../leaderboard/" class="nav-link">Leaderboard</a>
+                <a href="../play/" class="nav-link active">Single-player</a>
+                <a href="../multiplayer/" class="nav-link">Multi-player</a>
+                <div id="auth-link-container" class="nav-link"></div>
+            </nav>
         </header>
 
         <div class="game-content">
-            <main id="game-board" class="game-board">
-                <!-- Cipher letters and inputs will be injected here -->
-                <div class="loading-state">Initializing...</div>
-            </main>
+            <div class="game-board-container">
+                <div id="keyword-display" class="keyword-display hidden">
+                    KEYWORD: <span id="porta-keyword-val"></span>
+                </div>
+                <main id="game-board" class="game-board">
+                    <!-- Cipher letters and inputs will be injected here -->
+                    <div class="loading-state">Initializing...</div>
+                </main>
+
+                <!-- Game Controls Below Board -->
+                <div class="game-controls">
+                    <button id="new-game-btn" class="btn primary">New Game</button>
+                    <button id="clear-btn" class="btn secondary">Clear</button>
+                    <button id="check-btn" class="btn secondary">Check</button>
+                </div>
+            </div>
 
             <aside class="sidebar">
+                <div id="porta-tableau-panel" class="panel hidden">
+                    <h3>PORTA TABLEAU</h3>
+                    <div id="tableau-container" class="tableau-container"></div>
+                    <p class="tableau-hint">Row determined by Key letter. A,B=0, C,D=1 ...</p>
+                </div>
                 <div class="panel options-panel">
                     <h3>SETTINGS</h3>
                     <div class="control-group">
@@ -57,6 +74,8 @@
                             <option value="aristocrat">Aristocrat</option>
                             <option value="patristocrat">Patristocrat</option>
                             <option value="atbash">Atbash</option>
+                            <option value="caesar">Caesar</option>
+                            <option value="porta">Porta</option>
                             <option value="baconian">Baconian</option>
                         </select>
                     </div>
@@ -67,10 +86,6 @@
                     <div class="toggle-control">
                         <label for="toggle-autofill">Autofill Letters</label>
                         <input type="checkbox" id="toggle-autofill" checked>
-                    </div>
-                    <div class="toggle-control">
-                        <label for="toggle-theme">Dark Mode</label>
-                        <input type="checkbox" id="toggle-theme">
                     </div>
                 </div>
 

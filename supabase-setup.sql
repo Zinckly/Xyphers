@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS stats (
     patristocrat_solved INTEGER DEFAULT 0,
     atbash_time REAL DEFAULT 0,
     atbash_solved INTEGER DEFAULT 0,
+    caesar_time REAL DEFAULT 0,
+    caesar_solved INTEGER DEFAULT 0,
+    porta_time REAL DEFAULT 0,
+    porta_solved INTEGER DEFAULT 0,
     baconian_time REAL DEFAULT 0,
     baconian_solved INTEGER DEFAULT 0
 );

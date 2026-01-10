@@ -173,6 +173,117 @@ h1 {
     color: var(--accent-primary);
 }
 
+/* Main Navigation */
+.main-nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+/* Porta Cipher Specifics */
+.keyword-display {
+    background: var(--accent-primary);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Porta Cipher Specifics */
+
+#porta-tableau-panel {
+    margin-bottom: 1.5rem;
+}
+
+.tableau-container {
+    margin: 1rem 0;
+    overflow-x: auto;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: var(--input-bg);
+}
+
+.porta-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.porta-table th,
+.porta-table td {
+    padding: 3px 1px;
+    border: 1px solid var(--input-border);
+    min-width: 14px;
+}
+
+.porta-table thead th {
+    background: var(--accent-primary);
+    color: white;
+    font-weight: 700;
+}
+
+.porta-table .row-pair {
+    background: var(--accent-secondary);
+    color: white;
+    font-weight: 700;
+    white-space: nowrap;
+    padding: 4px 6px;
+}
+
+.porta-table tr:hover td {
+    background: rgba(var(--accent-primary-rgb, 0, 0, 0), 0.05);
+}
+
+.tableau-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* Game Controls Below Board */
+.game-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--input-border);
+    box-shadow: var(--shadow-sm);
+}
+
 .btn {
     padding: 0.8rem 1.5rem;
     border: none;
@@ -351,8 +462,14 @@ h1 {
     width: 100%;
 }
 
-.game-board {
+.game-board-container {
     flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.game-board {
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
@@ -360,7 +477,7 @@ h1 {
 
 .sidebar {
     flex: 1;
-    min-width: 250px;
+    min-width: 340px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -472,6 +589,7 @@ input[type="checkbox"] {
     margin-right: 1.5rem;
     /* Space between words */
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .letter-column {

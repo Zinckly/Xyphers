@@ -145,6 +145,25 @@
 
 <body>
 
+    <header
+        style="display: flex; justify-content: space-between; align-items: center; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%;">
+        <h1 style="font-size: 2rem; margin: 0;">
+            <a href="./" class="home-link">
+                <svg class="logo-x" viewBox="0 0 100 100" style="width: 1.8rem; height: 1.8rem;">
+                    <circle cx="30" cy="30" r="21" />
+                    <line x1="56" y1="56" x2="90" y2="90" />
+                    <line x1="90" y1="10" x2="10" y2="90" />
+                </svg>YPHERS
+            </a>
+        </h1>
+        <nav class="main-nav">
+            <a href="leaderboard/" class="nav-link">Leaderboard</a>
+            <a href="play/" class="nav-link">Single-player</a>
+            <a href="multiplayer/" class="nav-link">Multi-player</a>
+            <div id="auth-link-container" class="nav-link"></div>
+        </nav>
+    </header>
+
     <div class="hero-section">
         <h1>
             <svg class="logo-x" viewBox="0 0 100 100">
@@ -156,10 +175,10 @@
             </svg>YPHERS
         </h1>
         <p>
-            Dive into the world of <span class="keyword">cryptography</span>.
+            Dive into the world of <span class="keyword">cryptography</span>!
             Test your mind with challenging <span class="keyword">puzzles</span>,
             master the art of <span class="keyword">ciphers</span>, and have
-            non-stop <span class="keyword">fun</span> decoding hidden messages.
+            non-stop fun decoding hidden messages.
         </p>
 
         <a href="play/" class="cta-button">PLAY NOW</a>
@@ -187,6 +206,22 @@
                 </p>
             </div>
             <div class="feature-card">
+                <h3>CAESAR</h3>
+                <p>
+                    The classic shift cipher used by Julius Caesar. Each letter is shifted by a random number of
+                    positions.
+                    Crack the code by finding the shift pattern!
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3>PORTA</h3>
+                <p>
+                    A sophisticated polyalphabetic cipher from the 16th century. Uses a keyword and a tableau to
+                    rotate substitutions.
+                    Spaces are removed and text is grouped into 5-letter blocks.
+                </p>
+            </div>
+            <div class="feature-card">
                 <h3>BACONIAN</h3>
                 <p>
                     A steganographic cipher where each letter is replaced by a 5-character sequence of As and Bs.
@@ -200,8 +235,6 @@
         <p></p>
     </footer>
 
-    <div id="auth-link-container" style="position: absolute; top: 1rem; right: 2rem; z-index: 100;"></div>
-
     <script src="auth.js"></script>
     <script src="theme.js"></script>
     <script>
@@ -214,7 +247,7 @@
                         <button class="dropdown-btn">${username} &#9662;</button>
                         <div class="dropdown-content">
                             <a href="profile/">Statistics</a>
-                            <a href="leaderboard/">Leaderboard</a>
+                            <a href="settings/">Settings</a>
                             <a href="#" onclick="UserSession.logout(); window.location.reload(); return false;">Logout</a>
                         </div>
                     </div>

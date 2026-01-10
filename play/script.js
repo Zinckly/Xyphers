@@ -77,17 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Theme Toggle Listener
-    const themeToggle = document.getElementById('toggle-theme');
-    if (themeToggle) {
-        // Initialize checkbox based on current theme
-        themeToggle.checked = ThemeManager.getCurrentTheme() === 'dark';
-
-        themeToggle.addEventListener('change', (e) => {
-            ThemeManager.toggleTheme();
-        });
-    }
-
     // Global Keydown
     document.addEventListener('keydown', (e) => {
         const modal = document.getElementById('win-modal');
@@ -117,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="dropdown-btn">${username} &#9662;</button>
                     <div class="dropdown-content">
                         <a href="../profile/">Statistics</a>
-                        <a href="../leaderboard/">Leaderboard</a>
+                        <a href="../settings/">Settings</a>
                         <a href="#" onclick="UserSession.logout(); window.location.reload(); return false;">Logout</a>
                     </div>
                 </div>
@@ -224,6 +213,7 @@ async function initGame() {
 
     renderBoard(gameState.originalQuote, gameState.cipherMap);
     renderFrequencyChart(gameState.originalQuote, gameState.cipherMap);
+    updateControls(); // Refresh UI for keywords/restricted settings
 
     gameState.isGameActive = true;
     hideStatus();
@@ -273,6 +263,20 @@ function generateCipher() {
     } else if (gameState.settings.cipherType === 'atbash') {
         // Atbash: Reverse alphabet
         targetAlphabet = [...alphabet].reverse();
+    } else if (gameState.settings.cipherType === 'caesar') {
+        // Caesar: Shift alphabet by random amount (1-25)
+        const shift = Math.floor(Math.random() * 25) + 1; // Random shift 1-25
+        gameState.caesarShift = shift; // Store for reference
+        targetAlphabet = alphabet.map((_, i) => alphabet[(i + shift) % 26]);
+    } else if (gameState.settings.cipherType === 'porta') {
+        // Porta: Polyalphabetic, generate a keyword
+        const len = Math.floor(Math.random() * 5) + 4; // 4 to 8
+        let keyword = "";
+        for (let i = 0; i < len; i++) {
+            keyword += alphabet[Math.floor(Math.random() * 26)];
+        }
+        gameState.portaKeyword = keyword;
+        return {}; // No static map for polyalphabetic
     } else {
         // Random Shuffle (Aristocrat / Patristocrat)
         targetAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
@@ -299,9 +303,21 @@ function renderBoard(quote, cipherMap) {
         for (let i = 0; i < raw.length; i += 5) {
             words.push(raw.slice(i, i + 5));
         }
+    } else if (gameState.settings.cipherType === 'porta') {
+        // Remove spaces and punctuation, group into 5
+        const raw = quote.toUpperCase().replace(/[^A-Z]/g, '');
+        for (let i = 0; i < raw.length; i += 5) {
+            words.push(raw.slice(i, i + 5));
+        }
+    } else if (gameState.settings.cipherType === 'baconian') {
+        // Remove spaces and punctuation, but don't group into blocks
+        const raw = quote.replace(/[^A-Z]/g, '');
+        words = [raw]; // Single continuous string
     } else {
         words = quote.split(' ');
     }
+
+    let portaCharIndex = 0; // Track position in whole quote for keyword sync
 
     words.forEach(word => {
         const wordDiv = document.createElement('div');
@@ -325,6 +341,26 @@ function renderBoard(quote, cipherMap) {
                     cipherDiv.style.letterSpacing = '1px';
                     cipherDiv.textContent = cipherDisplay;
                     col.appendChild(cipherDiv);
+                } else if (gameState.settings.cipherType === 'porta') {
+                    // Porta Cipher Logic
+                    const p = char.charCodeAt(0) - 65;
+                    const keyword = gameState.portaKeyword;
+                    const k_char = keyword[portaCharIndex % keyword.length];
+                    const row = Math.floor((k_char.charCodeAt(0) - 65) / 2);
+
+                    let c;
+                    if (p < 13) {
+                        c = (p + row) % 13 + 13;
+                    } else {
+                        c = (p - 13 - row + 13) % 13;
+                    }
+                    cipherDisplay = String.fromCharCode(c + 65);
+                    portaCharIndex++; // Only increment for letters
+
+                    const cipherDiv = document.createElement('div');
+                    cipherDiv.className = 'cipher-letter';
+                    cipherDiv.textContent = cipherDisplay;
+                    col.appendChild(cipherDiv);
                 } else {
                     cipherDisplay = cipherMap[char];
                     const cipherDiv = document.createElement('div');
@@ -342,7 +378,7 @@ function renderBoard(quote, cipherMap) {
                 }
 
                 input.maxLength = 1;
-                input.dataset.cipher = cipherMap[char]; // For Baconian, this is the binary string
+                input.dataset.cipher = cipherDisplay;
                 input.dataset.original = char;
 
                 input.addEventListener('input', handleInput);
@@ -366,14 +402,19 @@ function renderBoard(quote, cipherMap) {
 
 function renderFrequencyChart(quote, cipherMap) {
     const chart = document.getElementById('freq-chart');
+    const freqPanel = document.querySelector('.freq-panel');
     if (!chart) return;
     chart.innerHTML = '';
 
-    // Hide for Atbash AND Baconian
-    if (gameState.settings.cipherType === 'atbash' || gameState.settings.cipherType === 'baconian') {
-        const typeName = gameState.settings.cipherType.charAt(0).toUpperCase() + gameState.settings.cipherType.slice(1);
-        chart.innerHTML = `<div style="padding:1rem; color:var(--text-secondary); text-align:center; font-style:italic; opacity:0.7;">Frequency analysis disabled for ${typeName}</div>`;
+    // Hide for Atbash, Baconian, Caesar, and Porta
+    if (gameState.settings.cipherType === 'atbash' ||
+        gameState.settings.cipherType === 'baconian' ||
+        gameState.settings.cipherType === 'caesar' ||
+        gameState.settings.cipherType === 'porta') {
+        freqPanel?.classList.add('hidden');
         return;
+    } else {
+        freqPanel?.classList.remove('hidden');
     }
 
     // Count frequencies of CIPHER characters
@@ -440,23 +481,85 @@ function handleInput(e) {
     // Note: No checkWinCondition here, per request check is manual or Enter
 }
 
+function renderPortaTableau() {
+    const tableauContainer = document.getElementById('tableau-container');
+    if (!tableauContainer) return;
+
+    // Check if already rendered to avoid redundant work
+    if (tableauContainer.innerHTML !== '') return;
+
+    const alphabet = "ABCDEFGHIJKLM";
+    const shiftedHalf = "NOPQRSTUVWXYZ";
+    const pairs = ["A,B", "C,D", "E,F", "G,H", "I,J", "K,L", "M,N", "O,P", "Q,R", "S,T", "U,V", "W,X", "Y,Z"];
+
+    let html = '<table class="porta-table"><thead><tr><th></th>';
+    for (let char of alphabet) {
+        html += `<th>${char}</th>`;
+    }
+    html += '</tr></thead><tbody>';
+
+    for (let i = 0; i < 13; i++) {
+        html += `<tr><td class="row-pair">${pairs[i]}</td>`;
+        for (let j = 0; j < 13; j++) {
+            const charCode = (j + i) % 13;
+            html += `<td>${shiftedHalf[charCode]}</td>`;
+        }
+        html += '</tr>';
+    }
+    html += '</tbody></table>';
+    tableauContainer.innerHTML = html;
+}
+
 function updateControls() {
     const type = gameState.settings.cipherType;
     const highlightToggle = document.getElementById('toggle-highlight');
+    const autofillToggle = document.getElementById('toggle-autofill');
 
+    // Porta specific UI toggle
+    const keywordDisplay = document.getElementById('keyword-display');
+    const tableauPanel = document.getElementById('porta-tableau-panel');
+    const keywordVal = document.getElementById('porta-keyword-val');
+    const freqPanel = document.querySelector('.freq-panel');
+
+    if (type === 'porta') {
+        keywordDisplay?.classList.remove('hidden');
+        tableauPanel?.classList.remove('hidden');
+        if (keywordVal) keywordVal.textContent = gameState.portaKeyword;
+        renderPortaTableau();
+    } else {
+        keywordDisplay?.classList.add('hidden');
+        tableauPanel?.classList.add('hidden');
+    }
+
+    // Hide frequency panel for specific ciphers
+    if (type === 'atbash' || type === 'baconian' || type === 'caesar' || type === 'porta') {
+        freqPanel?.classList.add('hidden');
+    } else {
+        freqPanel?.classList.remove('hidden');
+    }
+
+    // Disable highlight for Atbash, Baconian, Caesar, and Porta
     if (highlightToggle) {
-        if (type === 'atbash' || type === 'baconian') {
+        if (type === 'atbash' || type === 'baconian' || type === 'caesar' || type === 'porta') {
             highlightToggle.checked = false;
             highlightToggle.disabled = true;
-            // Force setting to false so game logic respects it
             gameState.settings.highlightSame = false;
 
-            // Clean up any existing highlights immediately
             const inputs = document.querySelectorAll('.input-letter');
             inputs.forEach(el => el.classList.remove('active-same-letter'));
-
         } else {
             highlightToggle.disabled = false;
+        }
+    }
+
+    // Disable autofill for Atbash, Baconian, Caesar, and Porta
+    if (autofillToggle) {
+        if (type === 'atbash' || type === 'baconian' || type === 'caesar' || type === 'porta') {
+            autofillToggle.checked = false;
+            autofillToggle.disabled = true;
+            gameState.settings.autofill = false;
+        } else {
+            autofillToggle.disabled = false;
         }
     }
 }

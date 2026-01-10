@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Xyphers</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="../play/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="../auth.js"></script>
+    <script src="../theme.js"></script>
+    <style>
+        body {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 3rem;
+        }
+
+        .settings-panel {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--input-border);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .settings-panel h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .settings-panel p {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .setting-info p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+            text-align: left;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="settings-container">
+        <div class="settings-panel">
+            <h1>⚙️ Settings</h1>
+            <p>Customize your Xyphers experience</p>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Dark Mode</h3>
+                    <p>Switch between light and dark themes</p>
+                </div>
+                <input type="checkbox" id="toggle-theme">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Highlight Matches</h3>
+                    <p>Highlight matching letters while typing</p>
+                </div>
+                <input type="checkbox" id="toggle-highlight" checked>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Autofill Letters</h3>
+                    <p>Automatically fill in matching letters</p>
+                </div>
+                <input type="checkbox" id="toggle-autofill" checked>
+            </div>
+        </div>
+
+        <a href="../play/" class="back-link">← Back to Game</a>
+    </div>
+
+    <script>
+        // Load settings from localStorage
+        const settings = JSON.parse(localStorage.getItem('xyphers_settings') || '{}');
+
+        // Initialize theme toggle
+        const themeToggle = document.getElementById('toggle-theme');
+        themeToggle.checked = ThemeManager.getCurrentTheme() === 'dark';
+        themeToggle.addEventListener('change', () => {
+            ThemeManager.toggleTheme();
+        });
+
+        // Initialize highlight toggle
+        const highlightToggle = document.getElementById('toggle-highlight');
+        highlightToggle.checked = settings.highlightSame !== false;
+        highlightToggle.addEventListener('change', (e) => {
+            settings.highlightSame = e.target.checked;
+            localStorage.setItem('xyphers_settings', JSON.stringify(settings));
+        });
+
+        // Initialize autofill toggle
+        const autofillToggle = document.getElementById('toggle-autofill');
+        autofillToggle.checked = settings.autofill !== false;
+        autofillToggle.addEventListener('change', (e) => {
+            settings.autofill = e.target.checked;
+            localStorage.setItem('xyphers_settings', JSON.stringify(settings));
+        });
+    </script>
+</body>
+
+</html>
