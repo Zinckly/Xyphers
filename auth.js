@@ -1,4 +1,4 @@
-const API_URL = 'http://127.0.0.1:5000/api';
+const API_URL = 'http://localhost:5000/api';
 
 class UserSession {
     static async signup(username, password) {
@@ -16,7 +16,7 @@ class UserSession {
             }
             return { success: false, message: data.message };
         } catch (error) {
-            return { success: false, message: "Server unreachable" };
+            return { success: false, message: 'Server unreachable' };
         }
     }
 
@@ -35,7 +35,7 @@ class UserSession {
             }
             return { success: false, message: data.message };
         } catch (error) {
-            return { success: false, message: "Server unreachable" };
+            return { success: false, message: 'Server unreachable' };
         }
     }
 
@@ -55,6 +55,7 @@ class UserSession {
     static async getStats() {
         const token = localStorage.getItem('xyphers_token');
         if (!token) return null;
+
         try {
             const response = await fetch(`${API_URL}/user/stats`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -63,7 +64,7 @@ class UserSession {
                 return await response.json();
             }
         } catch (error) {
-            console.error("Error fetching stats:", error);
+            console.error('Error fetching stats:', error);
         }
         return null;
     }
@@ -71,6 +72,7 @@ class UserSession {
     static async updateStats(cipherType, time) {
         const token = localStorage.getItem('xyphers_token');
         if (!token) return false;
+
         try {
             const response = await fetch(`${API_URL}/user/stats`, {
                 method: 'POST',
@@ -82,7 +84,7 @@ class UserSession {
             });
             return response.ok;
         } catch (error) {
-            console.error("Error updating stats:", error);
+            console.error('Error updating stats:', error);
         }
         return false;
     }
