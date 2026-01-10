@@ -304,10 +304,10 @@ function renderBoard(quote, cipherMap) {
             words.push(raw.slice(i, i + 5));
         }
     } else if (gameState.settings.cipherType === 'porta') {
-        // Remove spaces and punctuation, group into 5
+        const kLen = gameState.portaKeyword.length;
         const raw = quote.toUpperCase().replace(/[^A-Z]/g, '');
-        for (let i = 0; i < raw.length; i += 5) {
-            words.push(raw.slice(i, i + 5));
+        for (let i = 0; i < raw.length; i += kLen) {
+            words.push(raw.slice(i, i + kLen));
         }
     } else if (gameState.settings.cipherType === 'baconian') {
         // Remove spaces and punctuation, but don't group into blocks
