@@ -77,6 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Theme Toggle Listener
+    const themeToggle = document.getElementById('toggle-theme');
+    if (themeToggle) {
+        // Initialize checkbox based on current theme
+        themeToggle.checked = ThemeManager.getCurrentTheme() === 'dark';
+
+        themeToggle.addEventListener('change', (e) => {
+            ThemeManager.toggleTheme();
+        });
+    }
+
     // Global Keydown
     document.addEventListener('keydown', (e) => {
         const modal = document.getElementById('win-modal');
