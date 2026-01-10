@@ -78,6 +78,7 @@ class UserSession {
         if (!token) return false;
 
         try {
+            console.log(`Updating stats for ${cipherType}: ${time}s`);
             const response = await fetch(`${API_URL}/user/stats`, {
                 method: 'POST',
                 headers: {
@@ -86,6 +87,7 @@ class UserSession {
                 },
                 body: JSON.stringify({ cipherType, time })
             });
+            console.log('Stats update response:', response.status);
             return response.ok;
         } catch (error) {
             console.error('Error updating stats:', error);

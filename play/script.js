@@ -537,7 +537,7 @@ function checkSolution() {
         // Track Stats
         if (typeof UserSession !== 'undefined') {
             if (UserSession.isLoggedIn()) {
-                UserSession.updateStats(gameState.cipherType, solveTime);
+                UserSession.updateStats(gameState.settings.cipherType, solveTime);
             }
         }
 

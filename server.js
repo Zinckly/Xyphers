@@ -174,8 +174,8 @@ app.post('/api/user/stats', authenticateToken, async (req, res) => {
 
         res.json({ success: true });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Database error' });
+        console.error('Update Stats Error:', err);
+        res.status(500).json({ message: 'Database error', error: err.message });
     }
 });
 
