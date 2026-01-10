@@ -21,11 +21,11 @@ class ThemeManager {
     }
 
     static getCurrentTheme() {
-        return document.documentElement.getAttribute('data-theme') || 'dark';
+        const attr = document.documentElement.getAttribute('data-theme');
+        if (attr) return attr;
+        return localStorage.getItem(this.THEME_KEY) || 'dark';
     }
 }
 
-// Initialize theme on page load
-document.addEventListener('DOMContentLoaded', () => {
-    ThemeManager.init();
-});
+// Initialize theme immediately to prevent flashing and race conditions
+ThemeManager.init();
