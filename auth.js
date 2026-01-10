@@ -3,6 +3,7 @@ const API_URL = 'https://xyphers.onrender.com/api';
 class UserSession {
     static async signup(username, password) {
         try {
+            console.log(`Sending signup request to: ${API_URL}/auth/signup`);
             const response = await fetch(`${API_URL}/auth/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -16,12 +17,14 @@ class UserSession {
             }
             return { success: false, message: data.message };
         } catch (error) {
+            console.error('Signup error:', error);
             return { success: false, message: 'Server unreachable' };
         }
     }
 
     static async login(username, password) {
         try {
+            console.log(`Sending login request to: ${API_URL}/auth/login`);
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -35,6 +38,7 @@ class UserSession {
             }
             return { success: false, message: data.message };
         } catch (error) {
+            console.error('Login error:', error);
             return { success: false, message: 'Server unreachable' };
         }
     }

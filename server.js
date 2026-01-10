@@ -75,6 +75,11 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Routes
 app.post('/api/auth/signup', async (req, res) => {
     const { username, password } = req.body;
