@@ -25,86 +25,88 @@
     <style>
         /* Landing Page Specific Overrides */
         body {
-            justify-content: center;
-            text-align: center;
-            background-image: none !important;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: left;
+            padding: 2rem 0;
+            gap: 2rem;
+        }
+
+        /* Dual Window Layout Tweaks */
+        .header-window {
+            margin-bottom: 0 !important;
+            padding: 1.5rem 3rem !important;
+            position: relative;
+            z-index: 100;
+            /* Ensure dropdown is not overlapped */
+            border-bottom: none !important;
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+
+        .header-window header {
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+        }
+
+        .content-window {
+            margin-top: 0 !important;
+            position: relative;
+            z-index: 1;
+            border-top: none !important;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+        }
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 3rem;
+            width: 100%;
         }
 
         .hero-section {
-            padding: 4rem 2rem;
-            max-width: 800px;
+            padding: 0;
+            max-width: none;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .hero-section h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
             color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            /* Even tighter gap for logo-text cohesion */
+            justify-content: flex-start;
+            font-weight: 700;
+            letter-spacing: -1px;
+            /* Slightly tighter kerning */
         }
 
         .hero-section p {
             font-size: 1.2rem;
             color: var(--text-secondary);
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
             line-height: 1.6;
+            max-width: 800px;
+        }
+
+        /* Center action button in the main column */
+        .cta-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 4rem;
         }
 
         .cta-button {
             display: inline-block;
-            padding: 1rem 3rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--bg-color);
-            background-color: var(--accent-primary);
-            border-radius: 50px;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            background-color: var(--accent-secondary);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-            text-align: left;
-        }
-
-        .feature-card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--input-border);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-card h3 {
-            color: var(--accent-success);
-            font-family: var(--font-mono);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .feature-card p {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-
-        /* Keywords highlight */
-        .keyword {
-            color: var(--accent-primary);
-            font-weight: 600;
-        }
-
-        /* CTA Button Enhancement */
-        .cta-button {
-            display: inline-block;
-            padding: 1.2rem 3rem;
+            padding: 1.2rem 4rem;
             font-size: 1.3rem;
             font-weight: 700;
             color: #FFFFFF;
@@ -113,6 +115,8 @@
             text-decoration: none;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-lg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .cta-button:hover {
@@ -120,123 +124,214 @@
             box-shadow: 0 12px 24px rgba(14, 165, 233, 0.3);
         }
 
-        .feature-card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 16px;
-            border: 1px solid var(--input-border);
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
+        /* Cipher Documentation Section */
+        .cipher-info {
+            margin-top: 2rem;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-primary);
+        .cipher-info h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
         }
 
-        .feature-card h3 {
+        .cipher-type-doc {
+            margin-bottom: 2.5rem;
+        }
+
+        .cipher-type-doc h3 {
             color: var(--accent-primary);
             font-family: var(--font-mono);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cipher-type-doc p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 900px;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            border-left: 1px solid var(--input-border);
+            padding: 0 3rem;
+            /* Symmetrical padding to match container padding */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .leaderboard-placeholder {
+            background: var(--input-bg);
+            border: 1px dashed var(--input-border);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px;
+        }
+
+        .leaderboard-placeholder p {
+            font-size: 0.9rem;
+            font-style: italic;
+            margin: 0.25rem 0;
+        }
+
+        /* Keywords highlight */
+        .keyword {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .home-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-left: none;
+                border-top: 1px solid var(--input-border);
+                padding-left: 0;
+                padding-top: 2rem;
+                margin-top: 3rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <header
-        style="display: flex; justify-content: space-between; align-items: center; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%;">
-        <h1 style="font-size: 2rem; margin: 0;">
-            <a href="./" class="home-link">
-                <svg class="logo-x" viewBox="0 0 100 100" style="width: 1.8rem; height: 1.8rem;">
-                    <circle cx="30" cy="30" r="21" />
-                    <line x1="56" y1="56" x2="90" y2="90" />
-                    <line x1="90" y1="10" x2="10" y2="90" />
-                </svg>YPHERS
-            </a>
-        </h1>
-        <nav class="main-nav">
-            <a href="leaderboard/" class="nav-link">Leaderboard</a>
-            <a href="play/" class="nav-link">Single-player</a>
-            <a href="multiplayer/" class="nav-link">Multi-player</a>
-            <div id="auth-link-container" class="nav-link"></div>
-        </nav>
-    </header>
-
-    <div class="hero-section">
-        <h1>
-            <svg class="logo-x" viewBox="0 0 100 100">
-                <!-- Magnifying Glass Stroke (Top-Left to Bottom-Right) -->
-                <circle cx="30" cy="30" r="21" />
-                <line x1="56" y1="56" x2="90" y2="90" />
-                <!-- Crossing Stroke (Top-Right to Bottom-Left) -->
-                <line x1="90" y1="10" x2="10" y2="90" />
-            </svg>YPHERS
-        </h1>
-        <p>
-            Dive into the world of <span class="keyword">cryptography</span>!
-            Test your mind with challenging <span class="keyword">puzzles</span>,
-            master the art of <span class="keyword">ciphers</span>, and have
-            non-stop fun decoding hidden messages.
-        </p>
-
-        <a href="play/" class="cta-button">PLAY NOW</a>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>ARISTOCRAT</h3>
-                <p>
-                    The classic monoalphabetic substitution cipher. Each letter is replaced by another unique
-                    letter.
-                    Original spacing and punctuation are preserved to give you hints.
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>PATRISTOCRAT</h3>
-                <p>
-                    A harder variant of the Aristocrat. Spaces and punctuation are removed, and the text is
-                    grouped into 5-letter blocks. Pure deduction required!
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>ATBASH</h3>
-                <p>
-                    A simple substitution cipher where the alphabet is reversed. A becomes Z, B becomes Y, and so
-                    on.
-                    Perfect for warm-ups and spotting patterns.
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>CAESAR</h3>
-                <p>
-                    The classic shift cipher used by Julius Caesar. Each letter is shifted by a random number of
-                    positions.
-                    Crack the code by finding the shift pattern!
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>PORTA</h3>
-                <p>
-                    A sophisticated polyalphabetic cipher from the 16th century. Uses a keyword and a tableau to
-                    rotate substitutions.
-                    Spaces are removed and text is grouped into 5-letter blocks.
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>BACONIAN</h3>
-                <p>
-                    A steganographic cipher where each letter is replaced by a 5-character sequence of As and Bs.
-                    Based on the classic 24-letter alphabet.
-                </p>
-            </div>
-        </div>
+    <!-- Header Window -->
+    <div class="app-container header-window">
+        <header style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <h1 style="font-size: 2rem; margin: 0;">
+                <a href="./" class="home-link">
+                    <svg class="logo-x" viewBox="0 0 100 100" style="width: 1.8rem; height: 1.8rem;">
+                        <circle cx="30" cy="30" r="21" />
+                        <line x1="56" y1="56" x2="90" y2="90" />
+                        <line x1="90" y1="10" x2="10" y2="90" />
+                    </svg>YPHERS
+                </a>
+            </h1>
+            <nav class="main-nav">
+                <a href="leaderboard/" class="nav-link">Leaderboard</a>
+                <a href="play/" class="nav-link">Single-player</a>
+                <a href="multiplayer/" class="nav-link">Multi-player</a>
+                <div id="auth-link-container" class="nav-link"></div>
+            </nav>
+        </header>
     </div>
 
-    <footer class="app-footer">
-        <p></p>
-    </footer>
+    <!-- Main Content Window -->
+    <div class="app-container content-window">
+        <div class="home-grid">
+            <main class="main-content">
+                <section class="hero-section">
+                    <h1>
+                        <svg class="logo-x" viewBox="0 0 100 100" style="width: 3.5rem; height: 3.5rem;">
+                            <circle cx="30" cy="30" r="21" />
+                            <line x1="56" y1="56" x2="90" y2="90" />
+                            <line x1="90" y1="10" x2="10" y2="90" />
+                        </svg>YPHERS
+                    </h1>
+                    <p>
+                        Dive into the world of <span class="keyword">cryptography</span>!
+                        Test your mind with challenging <span class="keyword">puzzles</span>,
+                        master the art of <span class="keyword">ciphers</span>, and have
+                        non-stop fun decoding hidden messages.
+                    </p>
+
+                    <div class="cta-container">
+                        <a href="play/" class="cta-button">PLAY NOW</a>
+                    </div>
+                </section>
+
+                <section class="cipher-info">
+                    <h2>Master the Ciphers</h2>
+
+                    <div class="cipher-type-doc">
+                        <h3><span style="color:var(--text-secondary)">01.</span> ARISTOCRAT</h3>
+                        <p>
+                            The classic monoalphabetic substitution cipher. Each letter in the message is replaced by
+                            another unique letter of the alphabet.
+                            Original word spacing and punctuation are preserved, providing key contextual clues.
+                        </p>
+                    </div>
+
+                    <div class="cipher-type-doc">
+                        <h3><span style="color:var(--text-secondary)">02.</span> PATRISTOCRAT</h3>
+                        <p>
+                            A more advanced variation of the Aristocrat. While it still uses monoalphabetic
+                            substitution, all spaces and punctuation are completely removed, and the ciphertext is
+                            grouped into uniform 5-letter blocks.
+                        </p>
+                    </div>
+
+                    <div class="cipher-type-doc">
+                        <h3><span style="color:var(--text-secondary)">03.</span> ATBASH</h3>
+                        <p>
+                            A simple yet elegant substitution cipher where the alphabet is perfectly reversed. 'A'
+                            becomes 'Z', 'B' becomes 'Y', and so on.
+                        </p>
+                    </div>
+
+                    <div class="cipher-type-doc">
+                        <h3><span style="color:var(--text-secondary)">04.</span> CAESAR</h3>
+                        <p>
+                            Named after Julius Caesar, this cipher shifts every letter in the plaintext by a fixed
+                            number of positions down the alphabet. Identify the shift value to unlock the message.
+                        </p>
+                    </div>
+
+                    <div class="cipher-type-doc">
+                        <h3><span style="color:var(--text-secondary)">05.</span> PORTA</h3>
+                        <p>
+                            A sophisticated polyalphabetic substitution cipher from the 16th century. It uses a secret
+                            keyword to rotate substitutions based on a reference tableau.
+                        </p>
+                    </div>
+
+                    <div class="cipher-type-doc">
+                        <h3><span style="color:var(--text-secondary)">06.</span> BACONIAN</h3>
+                        <p>
+                            A unique steganographic cipher created by Francis Bacon. Each letter of the plaintext is
+                            represented by a specific 5-character sequence composed only of 'A' and 'B'.
+                        </p>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="sidebar">
+                <h2>LEADERBOARD</h2>
+                <div class="leaderboard-placeholder">
+                    <p>Global rankings offline.</p>
+                    <p style="opacity: 0.7;">Syncing signals...</p>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="app-footer"
+            style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--input-border); color: var(--text-secondary); font-size: 0.9rem;">
+            <p>&copy; 2026 Xyphers Cryptography. All signals encrypted.</p>
+        </footer>
+    </div>
 
     <script src="auth.js"></script>
     <script src="theme.js"></script>
