@@ -21,6 +21,12 @@ let gameState = {
     }
 };
 
+const RESTRICTIVE_CIPHERS = ['atbash', 'baconian', 'caesar', 'porta'];
+
+function isRestrictiveCipher(type) {
+    return RESTRICTIVE_CIPHERS.includes(type);
+}
+
 let timerInterval;
 let startTime;
 
@@ -55,11 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('modal-next-btn').addEventListener('click', () => {
         document.getElementById('win-modal').classList.add('hidden');
         initGame();
-    });
-
-    document.getElementById('toggle-autofill').addEventListener('change', (e) => {
-        gameState.settings.autofill = e.target.checked;
-        saveSettings();
     });
 
     // Cipher Type Listener
@@ -118,16 +119,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Re-add Highlight Listener
     if (highlightToggle) {
-        // Init state from settings
-        highlightToggle.checked = gameState.settings.highlightSame;
-
         highlightToggle.addEventListener('change', (e) => {
-            gameState.settings.highlightSame = e.target.checked;
-            saveSettings();
+            // Only save if not disabled (allow manual toggle only for supported ciphers)
+            if (!highlightToggle.disabled) {
+                gameState.settings.highlightSame = e.target.checked;
+                saveSettings();
+            }
 
-            if (!gameState.settings.highlightSame) {
+            if (!e.target.checked) {
                 // Clear existing highlights
                 document.querySelectorAll('.input-letter').forEach(el => el.classList.remove('active-same-letter'));
+            }
+        });
+    }
+
+    // Autofill Listener
+    if (autofillToggle) {
+        autofillToggle.addEventListener('change', (e) => {
+            if (!autofillToggle.disabled) {
+                gameState.settings.autofill = e.target.checked;
+                saveSettings();
             }
         });
     }
@@ -458,7 +469,7 @@ function handleInput(e) {
     gameState.userInputs[cipherChar] = val;
 
     // Autofill Logic
-    if (gameState.settings.autofill) {
+    if (gameState.settings.autofill && !isRestrictiveCipher(gameState.settings.cipherType)) {
         // Selector must handle binary strings which might contain special chars? No, 0/1 are fine.
         // CSS.escape might be needed if using querySelector with raw strings starting with digit?
         // data-cipher="00000" -> selector [data-cipher="00000"] works fine
@@ -471,9 +482,11 @@ function handleInput(e) {
     if (val) {
         const inputs = Array.from(document.querySelectorAll('.input-letter'));
         const currentIndex = inputs.indexOf(input);
-        for (let i = currentIndex + 1; i < inputs.length; i++) {
-            if (inputs[i].value === '') {
-                inputs[i].focus();
+        // Look for the next empty space, looping back to the beginning if needed
+        for (let i = 1; i < inputs.length; i++) {
+            const nextIdx = (currentIndex + i) % inputs.length;
+            if (inputs[nextIdx].value === '') {
+                inputs[nextIdx].focus();
                 break;
             }
         }
@@ -538,34 +551,34 @@ function updateControls() {
         freqPanel?.classList.remove('hidden');
     }
 
-    // Disable highlight for Atbash, Baconian, Caesar, and Porta
+    // Disable highlight for specific ciphers
     if (highlightToggle) {
-        if (type === 'atbash' || type === 'baconian' || type === 'caesar' || type === 'porta') {
+        if (isRestrictiveCipher(type)) {
             highlightToggle.checked = false;
             highlightToggle.disabled = true;
-            gameState.settings.highlightSame = false;
 
             const inputs = document.querySelectorAll('.input-letter');
             inputs.forEach(el => el.classList.remove('active-same-letter'));
         } else {
             highlightToggle.disabled = false;
+            highlightToggle.checked = gameState.settings.highlightSame;
         }
     }
 
-    // Disable autofill for Atbash, Baconian, Caesar, and Porta
+    // Disable autofill for specific ciphers
     if (autofillToggle) {
-        if (type === 'atbash' || type === 'baconian' || type === 'caesar' || type === 'porta') {
+        if (isRestrictiveCipher(type)) {
             autofillToggle.checked = false;
             autofillToggle.disabled = true;
-            gameState.settings.autofill = false;
         } else {
             autofillToggle.disabled = false;
+            autofillToggle.checked = gameState.settings.autofill;
         }
     }
 }
 
 function handleFocus(e) {
-    if (!gameState.settings.highlightSame) return;
+    if (!gameState.settings.highlightSame || isRestrictiveCipher(gameState.settings.cipherType)) return;
 
     const cipherChar = e.target.dataset.cipher;
     document.querySelectorAll('.input-letter').forEach(el => {
@@ -612,13 +625,13 @@ function handleKeydown(e) {
             input.dispatchEvent(event);
         }
 
-        // 2. Always move back (if possible)
+        // 2. Always move forward (looping)
         const inputs = Array.from(document.querySelectorAll('.input-letter'));
         const currentIndex = inputs.indexOf(input);
-        if (currentIndex > 0) {
-            inputs[currentIndex - 1].focus();
-        }
-    } else if (e.key === "Enter") {
+        const nextIndex = (currentIndex + 1) % inputs.length;
+        inputs[nextIndex].focus();
+    }
+    else if (e.key === "Enter") {
         e.stopPropagation(); // Prevent this from bubbling to the global listener
         checkSolution();
     }
