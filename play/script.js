@@ -148,6 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function saveSettings() {
     localStorage.setItem('xyphers_settings', JSON.stringify(gameState.settings));
+
+    // Push highlighting and autofill to cloud if logged in
+    if (typeof UserSession !== 'undefined' && UserSession.isLoggedIn()) {
+        UserSession.updateSettings({
+            highlightSame: gameState.settings.highlightSame,
+            autofill: gameState.settings.autofill
+        });
+    }
 }
 
 function clearBoard() {

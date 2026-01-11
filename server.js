@@ -35,7 +35,11 @@ async function initDb() {
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                theme TEXT DEFAULT 'dark',
+                highlight_same BOOLEAN DEFAULT TRUE,
+                autofill BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -49,6 +53,10 @@ async function initDb() {
                 patristocrat_solved INTEGER DEFAULT 0,
                 atbash_time REAL DEFAULT 0,
                 atbash_solved INTEGER DEFAULT 0,
+                caesar_time REAL DEFAULT 0,
+                caesar_solved INTEGER DEFAULT 0,
+                porta_time REAL DEFAULT 0,
+                porta_solved INTEGER DEFAULT 0,
                 baconian_time REAL DEFAULT 0,
                 baconian_solved INTEGER DEFAULT 0,
                 CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id)
@@ -96,7 +104,16 @@ app.post('/api/auth/signup', async (req, res) => {
         await pool.query('INSERT INTO stats (user_id) VALUES ($1)', [userId]);
 
         const token = jwt.sign({ username, id: userId }, SECRET_KEY, { expiresIn: '7d' });
-        res.status(201).json({ success: true, token, username });
+        res.status(201).json({
+            success: true,
+            token,
+            username,
+            settings: {
+                theme: 'dark',
+                highlightSame: true,
+                autofill: true
+            }
+        });
     } catch (err) {
         if (err.code === '23505') { // PostgreSQL Unique Violation code
             return res.status(400).json({ message: 'Username already exists' });
@@ -120,7 +137,16 @@ app.post('/api/auth/login', async (req, res) => {
         if (!validPassword) return res.status(401).json({ message: 'Invalid username or password' });
 
         const token = jwt.sign({ username: user.username, id: user.id }, SECRET_KEY, { expiresIn: '7d' });
-        res.json({ success: true, token, username: user.username });
+        res.json({
+            success: true,
+            token,
+            username: user.username,
+            settings: {
+                theme: user.theme,
+                highlightSame: user.highlight_same,
+                autofill: user.autofill
+            }
+        });
     } catch (err) {
         console.error('Login Database Error:', err);
         res.status(500).json({ message: 'Database error', error: err.message });
@@ -176,6 +202,55 @@ app.post('/api/user/stats', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error('Update Stats Error:', err);
         res.status(500).json({ message: 'Database error', error: err.message });
+    }
+});
+
+app.get('/api/user/settings', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT theme, highlight_same, autofill FROM users WHERE id = $1', [req.user.id]);
+        const user = result.rows[0];
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        res.json({
+            theme: user.theme,
+            highlightSame: user.highlight_same,
+            autofill: user.autofill
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Database error' });
+    }
+});
+
+app.post('/api/user/settings', authenticateToken, async (req, res) => {
+    const { theme, highlightSame, autofill } = req.body;
+
+    // Build dynamic query based on provided fields
+    const updates = [];
+    const values = [];
+    if (theme !== undefined) {
+        updates.push(`theme = $${updates.length + 1}`);
+        values.push(theme);
+    }
+    if (highlightSame !== undefined) {
+        updates.push(`highlight_same = $${updates.length + 1}`);
+        values.push(highlightSame);
+    }
+    if (autofill !== undefined) {
+        updates.push(`autofill = $${updates.length + 1}`);
+        values.push(autofill);
+    }
+
+    if (updates.length === 0) return res.status(400).json({ message: 'No data to update' });
+
+    values.push(req.user.id);
+    try {
+        await pool.query(
+            `UPDATE users SET ${updates.join(', ')} WHERE id = $${values.length}`,
+            values
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Database error' });
     }
 });
 

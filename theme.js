@@ -6,11 +6,21 @@ class ThemeManager {
         // Load saved theme or default to dark
         const savedTheme = localStorage.getItem(this.THEME_KEY) || 'dark';
         this.setTheme(savedTheme);
+
+        // Run sync in background after initialization
+        if (typeof UserSession !== 'undefined') {
+            UserSession.syncSettings();
+        }
     }
 
     static setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem(this.THEME_KEY, theme);
+
+        // Push to cloud if logged in
+        if (typeof UserSession !== 'undefined' && UserSession.isLoggedIn()) {
+            UserSession.updateSettings({ theme });
+        }
     }
 
     static toggleTheme() {
