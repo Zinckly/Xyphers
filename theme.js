@@ -3,8 +3,8 @@ class ThemeManager {
     static THEME_KEY = 'xyphers_theme';
 
     static init() {
-        // Load saved theme or default to dark
-        const savedTheme = localStorage.getItem(this.THEME_KEY) || 'dark';
+        // Load saved theme or default to light
+        const savedTheme = localStorage.getItem(this.THEME_KEY) || 'light';
         this.setTheme(savedTheme);
 
         // Run sync in background after initialization
@@ -24,7 +24,7 @@ class ThemeManager {
     }
 
     static toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         this.setTheme(newTheme);
         return newTheme;
@@ -33,7 +33,7 @@ class ThemeManager {
     static getCurrentTheme() {
         const attr = document.documentElement.getAttribute('data-theme');
         if (attr) return attr;
-        return localStorage.getItem(this.THEME_KEY) || 'dark';
+        return localStorage.getItem(this.THEME_KEY) || 'light';
     }
 }
 

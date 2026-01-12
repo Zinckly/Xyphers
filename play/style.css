@@ -644,7 +644,6 @@ input[type="checkbox"] {
     text-align: center;
     text-transform: uppercase;
     outline: none;
-    transition: all 0.2s ease;
     cursor: pointer;
     caret-color: transparent;
 }
@@ -655,8 +654,6 @@ input[type="checkbox"] {
     background-color: #FFFFFF;
     box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
     outline: none;
-    transform: scale(1.05);
-    z-index: 10;
 }
 
 .input-letter.matched {
